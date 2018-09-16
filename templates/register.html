@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <link rel='stylesheet' href="/static/blog/bs/css/bootstrap.css">
+    <style></style>
 </head>
 <body>
 
@@ -11,12 +12,12 @@
     <div class="row">
         <div class="col-md-6 col-lg-offset-3">
             <h3 style="margin-top: 50px">注册页面</h3>
-            <form>
+            <form id="form">
                 {% csrf_token %}
                 {% for field in form %}
                     <div class="form-group">
                         <label for="{{ field.auto_id }}">{{ field.label }}</label>
-                        {{ field }}
+                        {{ field }} <span class="error pull-right"></span>
                     </div>
                 {% endfor %}
 
@@ -27,7 +28,7 @@
                     <input type="file" id="avatar" style="display: none">
 
                 </div>
-                <input type="button" class="btn btn-default login_btn pull-right" value="提交"><span class="error"></span>
+                <input type="button" class="btn btn-default reg_btn pull-right" value="提交"><span class="error"></span>
         </form>
     </div>
 </div>
@@ -46,26 +47,43 @@
     );
     //刷新验证码
     //登录验证
-    $(".login_btn").click(function () {
+    $(".reg_btn").click(function () {
+        var formdata = new FormData();
+        var request_data=$("#form").serializeArray();
+        $.each(request_data,function (index,data) {
+            formdata.append(data.name,data.value)
+
+        });
+
+        {#formdata.append("user",$("#id_user").val());#}
+        {#formdata.append("pwd",$("#id_pwd").val());#}
+        {#formdata.append("re_pwd",$("#id_re_pwd").val());#}
+        {#formdata.append("email",$("#id_email").val());#}
+        {#formdata.append("csrfmiddlewaretoken",$("[name='csrfmiddlewaretoken']").val());#}
+        formdata.append("avatar",$("#avatar")[0].files[0]);
         $.ajax({
                 url: '',
                 type: 'post',
-                data: {
-                    user: $('#user').val(),
-                    pwd: $('#pwd').val(),
-                    valid_code: $('#valid_code').val(),
-                    csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
-                },
+                data: formdata,
+                contentType:false,
+                processData:false,
                 success: function (data) {
                     console.log(data);
                     if (data.user) {
                         location.href = "/index/"
                     }
                     else {
-                        $(".error").text(data.msg).css({"color": "red", "margin-left": "10px"})
-                        setTimeout(function () {
-                            $(".error").text("")
-                        }, 2000)
+                        $("span.error").html("");
+                        $("span.error").parent().removeClass("has-error");
+                        $.each(data.msg,function (field,error_list) {
+                             if(field=="__all__"){
+                                  $("#id_re_pwd").next().text(error_list[0]).css({"color": "red"});
+                                  $("#id_re_pwd").parent().addClass("has-error");
+                             }
+                             $("#id_"+field).next().text(error_list[0]).css({"color": "red"});
+                             $("#id_"+field).parent().addClass("has-error");
+                        });
+
                     }
                 }
             }

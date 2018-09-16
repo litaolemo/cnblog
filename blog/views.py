@@ -2,15 +2,7 @@ from django.shortcuts import render,HttpResponse
 
 from django.http import JsonResponse
 from django.contrib import auth
-from django import forms
-from django.forms import widgets
-
-
-class UserForm(forms.Form):
-    user = forms.CharField(max_length=32,widget=widgets.TextInput(attrs={"class":"form-control"}),label="用户名")
-    pwd = forms.CharField(max_length=32,widget=widgets.PasswordInput(attrs={"class":"form-control"}),label="密码")
-    re_pwd = forms.CharField(max_length=32,widget=widgets.PasswordInput(attrs={"class":"form-control"}),label="确认密码")
-    email = forms.EmailField(max_length=32,widget=widgets.EmailInput(attrs={"class":"form-control"}),label="邮箱")
+from blog.Myforms import UserForm
 
 
 def login(requset):
@@ -49,5 +41,17 @@ def index(request):
     return render(request,"index.html")
 
 def register(request):
+
+    if request.is_ajax():
+        print(request.POST)
+        form=UserForm(request.POST)
+        response = {"user":None,'msg':None}
+        if form.is_valid():
+            response["user"]=form.cleaned_data.get("user")
+        else:
+            print(form.cleaned_data)
+            print(form.error_class)
+            response["msg"]=form.errors
+        return JsonResponse(response)
     form = UserForm
     return render(request,"register.html",locals())
