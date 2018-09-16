@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel = 'stylesheet' href="/static/blog/bs/css/bootstrap.css">
+</head>
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-lg-offset-3">
+                <h3 style="margin-top: 50px">登录页面</h3>
+                <form>
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="user">用户名</label>
+                        <input type="text" id="user" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="pwd">密码</label>
+                        <input type="password" id="pwd" class='form-control'>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pwd">验证码</label>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="text" id="valid_code" class="valid_code form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <img width="130" height="40" src="/get_valid_Code_img" alt="" id="valid_code_img">
+                            </div>
+                        </div>
+                    <input type="button" class="btn btn-default login_btn pull-right" value="提交" style="margin-top: 15px;margin-right: 10px"><span class="error"></span>
+                        <a href="/register/" class="btn btn-success pull-right" style="margin-top: 15px;margin-right: 10px">注册</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+<script src="/static/blog/bs/jquery-3.3.1.js"></script>
+<script>
+    $("#valid_code_img").click(function(){
+        $(this)[0].src+="?"
+        }
+    )
+    //刷新验证码
+    //登录验证
+    $(".login_btn").click(function(){
+        $.ajax({
+            url:'',
+            type:'post',
+            data:{
+                user:$('#user').val(),
+                pwd:$('#pwd').val(),
+                valid_code:$('#valid_code').val(),
+                csrfmiddlewaretoken:$("[name='csrfmiddlewaretoken']").val()
+            },
+            success:function (data) {
+                console.log(data);
+                if(data.user){
+                    location.href="/index/"
+                }
+                else{
+                    $(".error").text(data.msg).css({"color":"red","margin-left":"10px"})
+                    setTimeout(function () {
+                        $(".error").text("")
+                    },2000)
+                }
+            }
+            }
+        )
+    })
+</script>
+</body>
+</html>

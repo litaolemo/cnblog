@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel='stylesheet' href="/static/blog/bs/css/bootstrap.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 col-lg-offset-3">
+            <h3 style="margin-top: 50px">注册页面</h3>
+            <form>
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-group">
+                        <label for="{{ field.auto_id }}">{{ field.label }}</label>
+                        {{ field }}
+                    </div>
+                {% endfor %}
+
+                <div class="form-group">
+                    <label for="avatar">头像
+                    <img src="/static/media/avatars/default.png" alt="" width="60" height="60" style="margin-left: 20px" id="avatar_img">
+                    </label>
+                    <input type="file" id="avatar" style="display: none">
+
+                </div>
+                <input type="button" class="btn btn-default login_btn pull-right" value="提交"><span class="error"></span>
+        </form>
+    </div>
+</div>
+</div>
+<script src="/static/blog/bs/jquery-3.3.1.js"></script>
+<script>
+    $("#avatar").change(function () {
+            var file_obj=$(this)[0].files[0];
+            var reader = new FileReader();
+            reader.readAsDataURL(file_obj);
+            reader.onload=function(){
+                $("#avatar_img").attr("src",reader.result)
+            }
+
+        }
+    );
+    //刷新验证码
+    //登录验证
+    $(".login_btn").click(function () {
+        $.ajax({
+                url: '',
+                type: 'post',
+                data: {
+                    user: $('#user').val(),
+                    pwd: $('#pwd').val(),
+                    valid_code: $('#valid_code').val(),
+                    csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+                },
+                success: function (data) {
+                    console.log(data);
+                    if (data.user) {
+                        location.href = "/index/"
+                    }
+                    else {
+                        $(".error").text(data.msg).css({"color": "red", "margin-left": "10px"})
+                        setTimeout(function () {
+                            $(".error").text("")
+                        }, 2000)
+                    }
+                }
+            }
+        )
+    })
+</script>
+</body>
+</html>
