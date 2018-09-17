@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <link rel='stylesheet' href="/static/blog/bs/css/bootstrap.css">
+    <script src="/static/blog/bs/jquery-3.3.1.js"></script>
+    <script src="/static/blog/bs/js/bootstrap.js"></script>
     <style></style>
 </head>
 <body>
@@ -33,7 +35,7 @@
     </div>
 </div>
 </div>
-<script src="/static/blog/bs/jquery-3.3.1.js"></script>
+
 <script>
     $("#avatar").change(function () {
             var file_obj=$(this)[0].files[0];
@@ -70,7 +72,7 @@
                 success: function (data) {
                     console.log(data);
                     if (data.user) {
-                        location.href = "/index/"
+                        location.href = "/login/"
                     }
                     else {
                         $("span.error").html("");

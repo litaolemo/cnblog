@@ -14,17 +14,17 @@ class UserForm(forms.Form):
     email = forms.EmailField(max_length=32,widget=widgets.EmailInput(attrs={"class":"form-control"}),label="邮箱")
 
     def clean_user(self):
-        user=self.cleaned_data.get("user")
-        user=UserInfo.objects.filter(username=user).first()
+        val=self.cleaned_data.get("user")
+        user=UserInfo.objects.filter(username=val).first()
         print(user)
         if not user:
-            return user
+            return val
         else:
             raise ValidationError("该用户已注册")
 
     def clean(self):
-        pwd=self.cleaned_data.get("pwd")
-        re_pwd=self.cleaned_data.get("re_pwd")
+        pwd = self.cleaned_data.get("pwd")
+        re_pwd = self.cleaned_data.get("re_pwd")
         if pwd and re_pwd:
             if pwd == re_pwd:
                 return self.cleaned_data
