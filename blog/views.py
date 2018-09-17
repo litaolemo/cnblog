@@ -40,6 +40,7 @@ def get_valid_Code_img(requset):
 def index(request):
     return render(request,"index.html")
 
+from blog.models import UserInfo
 def register(request):
 
     if request.is_ajax():
@@ -48,6 +49,7 @@ def register(request):
         response = {"user":None,'msg':None}
         if form.is_valid():
             response["user"]=form.cleaned_data.get("user")
+
         else:
             print(form.cleaned_data)
             print(form.error_class)
