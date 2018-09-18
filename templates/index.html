@@ -12,6 +12,17 @@
             margin-right: 10px;
             vertical-align: -3px;
         }
+        .pub_info{
+            margin-top: 10px;
+        }
+        .pub_info .glyphicon-comment{
+            vertical-align: -1px;
+            margin-right: 3px;
+        }
+        .pub_info .glyphicon-thumbs-up{
+            vertical-align: -1px;
+            margin-right: 2px;
+        }
     </style>
 </head>
 <body>
@@ -74,10 +85,30 @@
             </div>
         </div>
         <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    Basic panel example
-                </div>
+            <div class="article_list">
+                {% for foo in article_list %}
+                    <div class="article-item">
+                        <h5><a href="">{{ foo.title }}</a></h5>
+                        <div class="article-desc">
+                        <span class="media-left">
+                            <a href="" >
+                                <img  width="50" height="50" src="media/{{ foo.user.avatar }}" alt="">
+                            </a>
+                        </span>
+                            <span class="media-right">
+                                {{ foo.desc }}
+                            </span>
+                        </div>
+                        <div class="small pub_info">
+                            <span><a href="">{{ foo.user.username }}</a></span> &nbsp;&nbsp;
+                            <span>发布于&nbsp;&nbsp;{{ foo.create_time|date:"Y-d-m:i" }}</span>&nbsp;&nbsp;
+                            <span class="glyphicon glyphicon-comment"></span>评论({{ foo.comment_count }})&nbsp;&nbsp;
+                        <span class="glyphicon glyphicon-thumbs-up"></span>点赞({{ foo.up_count }})
+                        </div>
+                        <hr>
+                    </div>
+                {% endfor %}
+
             </div>
         </div>
         <div class="col-md-3">

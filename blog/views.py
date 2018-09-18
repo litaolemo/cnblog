@@ -1,5 +1,5 @@
 from django.shortcuts import render, HttpResponse,redirect
-from blog.models import UserInfo
+from blog.models import *
 from django.http import JsonResponse
 from django.contrib import auth
 from blog.Myforms import UserForm
@@ -40,7 +40,8 @@ def get_valid_Code_img(requset):
 
 
 def index(request):
-    return render(request, "index.html")
+    article_list = Article.objects.all()
+    return render(request, "index.html",locals())
 
 
 def register(request):
@@ -57,7 +58,7 @@ def register(request):
             extra = {}
             if file_obj:
                 extra["avatar"] = file_obj
-            user_obj = UserInfo.objects.create_user(username=user, password=pwd, email=email, avatar=file_obj, **extra)
+            user_obj = UserInfo.objects.create_user(username=user, password=pwd, email=email, **extra)
 
         else:
             print(form.cleaned_data)
@@ -72,3 +73,21 @@ def logout(request):
     auth.logout(request)
     #request.session.flush()
     return redirect("/index/")
+
+def home_site(requset,username):
+    """
+    个人站点视图函数
+    :param requset:
+    :return:
+    """
+    # print(username)
+    user = UserInfo.objects.filter(username=username).first()
+    if not user:
+        return render(requset,"not_found.html")
+    # 查询当前站点对象
+    #blog = user.blog
+    # 当前用户或站点对应的所有文章
+    # 查询当前站点对象
+    #article_list = user.article_set.all()
+    article_list = Article.objects.filter(user=user)
+    return render(requset,"home_site.html")
