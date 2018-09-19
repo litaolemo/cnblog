@@ -28,6 +28,11 @@ urlpatterns = [
     path('logout/',views.logout),
     #media配置
     re_path(r"media/(?P<path>.*)$",serve,{"document_root":settings.MEDIA_ROOT}),
+
+    # 个人详细页
+    re_path('^(?P<username>\w+)/(?P<condition>tag|category|archive)/(?P<param>.*)/$',views.home_site),
     re_path("^(?P<username>\w+)$",views.home_site),
-    re_path("^(?P<username>\w+)/(?P<condition>tag|category|archive)/(?P<param>.*)/$",views.home_site),
+
+    #文章内容
+    #re_path('^(?P<username>\w+)/articles/(?P<article_id>\d+)$', views.article_detail),
 ]

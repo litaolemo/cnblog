@@ -1,114 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <link rel='stylesheet' href="/static/blog/bs/css/bootstrap.css">
-    <script src="/static/blog/bs/jquery-3.3.1.js"></script>
-    <script src="/static/blog/bs/js/bootstrap.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-        }
+{% extends 'base.html' %}
 
-        .header {
-            height: 60px;
-            width: 100%;
-            background-color: #369;
-        }
 
-        .header .title {
-            font-size: 18px;
-            font-weight: 100;
-            line-height: 60px;
-            color: white;
-            margin-right: 15px;
-        }
-
-        .backend {
-            float: right;
-            color: white;
-            text-decoration: none;
-            font-size: 14px;
-            margin-right: 10px;
-            margin-top: 12px;
-        }
-
-        .pub_info {
-            margin-top: 10px;
-            color: gray;
-
-        }
-
-        .pub_info .glyphicon-comment {
-            vertical-align: -1px;
-            margin-right: 3px;
-        }
-
-        .pub_info .glyphicon-thumbs-up {
-            vertical-align: -1px;
-            margin-right: 2px;
-        }
-    </style>
-</head>
-<body>
-<div class="header">
-    <p class="title">
-        <span>{{ blog.title }}</span>
-        <a href="" class="backend">管理</a>
-    </p>
-</div>
-
-<div class="container">
-    <div class="row">
-        <div class="col-md-3">
-            <div class="panel panel-warning">
-                <div class="panel-heading">我的标签</div>
-                <div class="panel-body">
-                    {% for tag in taglist %}
-                        <p>{{ tag.0 }}({{ tag.1 }})</p>
-                    {% endfor %}
-                    
-                </div>
-            </div>
-            <div class="panel panel-danger">
-                <div class="panel-heading">随笔分类</div>
-                <div class="panel-body">
-                    {% for cate in cate_list %}
-                        <p>{{ cate.0 }}({{ cate.1 }})</p>
-                    {% endfor %}
-                </div>
-            </div>
-            <div class="panel panel-success">
-                <div class="panel-heading">随笔归档</div>
-                <div class="panel-body">
-                    {% for date in date_list %}
-                        <p>{{ date.0 }}({{ date.1 }})</p>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-        <div class="col-md-9">
-            <div class="article_list ">
-                {% for foo in article_list %}
-                    <div class="article-item ">
-                        <h5><a href="">{{ foo.title }}</a></h5>
-                        <div class="article-desc ">
-                            {{ foo.desc }}
+{% block content %}
+ <div class="article_list">
+                {% for article in article_list %}
+                    <div class="article-item clearfix">
+                        <h5><a href="/{{ article.user.username }}/articles/{{ article.pk }}">{{ article.title }}</a></h5>
+                        <div class="article-desc">
+                            {{ article.desc }}
                         </div>
-                        <div class="small pub_info pull-right clearfix">&nbsp&nbsp
-                            <span>发布于&nbsp&nbsp{{ foo.create_time|date:"Y-d-m:i" }}</span>&nbsp&nbsp
-                            <span class="glyphicon glyphicon-comment"></span>评论({{ foo.comment_count }})&nbsp&nbsp
-                            <span class="glyphicon glyphicon-thumbs-up"></span>点赞({{ foo.up_count }})
+                        <div class="small pub_info pull-right">
+                            <span>发布于 &nbsp;&nbsp;{{ article.create_time|date:"Y-m-d H:i" }}</span>&nbsp;&nbsp;
+                            <span class="glyphicon glyphicon-comment"></span>评论({{ article.comment_count }})&nbsp;&nbsp;
+                            <span class="glyphicon glyphicon-thumbs-up"></span>点赞({{ article.up_count }})&nbsp;&nbsp;
                         </div>
-                        <hr>
                     </div>
+                    <hr>
                 {% endfor %}
 
             </div>
-        </div>
-    </div>
-</div>
-</body>
-</html>
+{% endblock %}
