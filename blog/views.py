@@ -3,6 +3,7 @@ from blog.models import *
 from django.http import JsonResponse
 from django.contrib import auth
 from blog.Myforms import UserForm
+from django.db.models import Count
 
 
 
@@ -85,9 +86,13 @@ def home_site(requset,username):
     if not user:
         return render(requset,"not_found.html")
     # 查询当前站点对象
-    #blog = user.blog
+    blog = user.blog
     # 当前用户或站点对应的所有文章
     # 查询当前站点对象
     #article_list = user.article_set.all()
     article_list = Article.objects.filter(user=user)
-    return render(requset,"home_site.html")
+
+    date_list = Article.objects.filter(user=user).extra(select={"y_m_d_date":"date_format(create_time,'%%Y-%%m-%%d')"}).\
+        values("y_m_d_date").annotate(c=Count("nid")).values_list("y_m_d_date","c")
+    print(date_list)
+    return render(requset,"home_site.html",locals())

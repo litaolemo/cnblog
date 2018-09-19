@@ -29,4 +29,5 @@ urlpatterns = [
     #media配置
     re_path(r"media/(?P<path>.*)$",serve,{"document_root":settings.MEDIA_ROOT}),
     re_path("^(?P<username>\w+)$",views.home_site),
+    re_path("^(?P<username>\w+)/(?P<condition>tag|category|archive)/(?P<param>.*)/$",views.home_site),
 ]
