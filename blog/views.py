@@ -75,7 +75,7 @@ def logout(request):
     #request.session.flush()
     return redirect("/index/")
 
-def home_site(requset,username):
+def home_site(requset,username,condition,param):
     """
     个人站点视图函数
     :param requset:
