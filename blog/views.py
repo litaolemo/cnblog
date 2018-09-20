@@ -4,7 +4,8 @@ from django.http import JsonResponse
 from django.contrib import auth
 from blog.Myforms import UserForm
 from django.db.models import Count
-
+import json
+from django.db.models import F
 
 
 def login(requset):
@@ -75,7 +76,7 @@ def logout(request):
     #request.session.flush()
     return redirect("/index/")
 
-def home_site(requset,username,**kwargs):
+def home_site(request,username,**kwargs):
     """
     个人站点视图函数
     :param requset:
@@ -84,7 +85,7 @@ def home_site(requset,username,**kwargs):
     # print(username)
     user = UserInfo.objects.filter(username=username).first()
     if not user:
-        return render(requset,"not_found.html")
+        return render(request,"not_found.html")
     # 查询当前站点对象
     blog = user.blog
     # 当前用户或站点对应的所有文章
@@ -134,7 +135,8 @@ def home_site(requset,username,**kwargs):
     #
     # ret=Article.objects.filter(user=user).annotate(month=TruncMonth("create_time")).values("month").annotate(c=Count("nid")).values_list("month","c")
     # print("ret----->",ret)
-    return render(requset,"home_site.html",locals())
+    print(user)
+    return render(request, "home_site.html", locals())
 
 
 def get_classification_data(username):
@@ -167,3 +169,33 @@ def article_detail(request, username, article_id):
     comment_list = Comment.objects.filter(article_id=article_id)
 
     return render(request, "article_detail.html", locals())
+
+
+def digg(request):
+    """
+    点赞功能
+    :param request:
+    :return:
+    """
+    print(request.POST)
+
+    article_id = request.POST.get("article_id")
+    is_up = json.loads(request.POST.get("is_up"))  # "true"
+    # 点赞人即当前登录人
+    user_id = request.user.pk
+    obj = ArticleUpDown.objects.filter(user_id=user_id, article_id=article_id).first()
+
+    response = {"state": True}
+    if not obj:
+        ard = ArticleUpDown.objects.create(user_id=user_id, article_id=article_id, is_up=is_up)
+
+        queryset = Article.objects.filter(pk=article_id)
+        if is_up:
+            queryset.update(up_count=F("up_count") + 1)
+        else:
+            queryset.update(down_count=F("down_count") + 1)
+    else:
+        response["state"] = False
+        response["handled"] = obj.is_up
+
+    return JsonResponse(response)
