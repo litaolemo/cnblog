@@ -11,7 +11,7 @@ def get_random_color():
 def get_valid_Code_img(requset):
     img = Image.new('RGB',(130,40),color=get_random_color())
     draw = ImageDraw.Draw(img)
-    kumo_font = ImageFont.truetype('static/blog/font/kumo.ttf', size=32)
+    #kumo_font = ImageFont.truetype(size=32)
 
     valid_code_str = ""
     for i  in range(5):
@@ -19,7 +19,7 @@ def get_valid_Code_img(requset):
         random_low_alpha = chr(random.randint(97,122))
         random_upper_alpha = chr(random.randint(65,90))
         random_char = random.choice([random_num,random_low_alpha,random_upper_alpha])
-        draw.text((i*20+20,5),random_char,font=kumo_font)
+        draw.text((i*20+20,5),random_char)
         valid_code_str += random_char
     print(valid_code_str)
     width = 270

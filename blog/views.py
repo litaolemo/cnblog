@@ -6,7 +6,10 @@ from blog.Myforms import UserForm
 from django.db.models import Count
 import json
 from django.db.models import F
-
+from django.contrib.auth.decorators import login_required
+import os
+from cnblog import settings
+from django.db import transaction
 
 def login(requset):
     if requset.method == "POST":
@@ -199,3 +202,160 @@ def digg(request):
         response["handled"] = obj.is_up
 
     return JsonResponse(response)
+
+def digg(request):
+    """
+    点赞功能
+    :param request:
+    :return:
+    """
+    print(request.POST)
+
+    article_id = request.POST.get("article_id")
+    is_up = json.loads(request.POST.get("is_up"))  # "true"
+    # 点赞人即当前登录人
+    user_id = request.user.pk
+    obj = ArticleUpDown.objects.filter(user_id=user_id, article_id=article_id).first()
+
+    response = {"state": True}
+    if not obj:
+        ard = ArticleUpDown.objects.create(user_id=user_id, article_id=article_id, is_up=is_up)
+
+        queryset = Article.objects.filter(pk=article_id)
+        if is_up:
+            queryset.update(up_count=F("up_count") + 1)
+        else:
+            queryset.update(down_count=F("down_count") + 1)
+    else:
+        response["state"] = False
+        response["handled"] = obj.is_up
+
+    return JsonResponse(response)
+
+
+def comment(request):
+    """
+    提交评论视图函数
+    功能:
+    1 保存评论
+    2 创建事务
+    3 发送邮件
+    :param request:
+    :return:
+    """
+    print(request.POST)
+
+    article_id = request.POST.get("article_id")
+    pid = request.POST.get("pid")
+    content = request.POST.get("content")
+    user_id = request.user.pk
+
+    article_obj = Article.objects.filter(pk=article_id).first()
+
+    # 事务操作
+    with transaction.atomic():
+        comment_obj = Comment.objects.create(user_id=user_id, article_id=article_id, content=content,
+                                                    parent_comment_id=pid)
+        Article.objects.filter(pk=article_id).update(comment_count=F("comment_count") + 1)
+
+    response = {}
+
+    response["create_time"] = comment_obj.create_time.strftime("%Y-%m-%d %X")
+    response["username"] = request.user.username
+    response["content"] = content
+
+    # 发送邮件
+
+    from django.core.mail import send_mail
+    from cnblog import settings
+
+    # send_mail(
+    #     "您的文章%s新增了一条评论内容"%article_obj.title,
+    #     content,
+    #     settings.EMAIL_HOST_USER,
+    #     ["916852314@qq.com"]
+    # )
+
+    import threading
+    """t = threading.Thread(target=send_mail, args=("您的文章%s新增了一条评论内容" % article_obj.title,
+                                                 content,
+                                                 settings.EMAIL_HOST_USER,
+                                                 ["916852314@qq.com"])
+                         )
+    t.start()
+    """
+    return JsonResponse(response)
+
+
+def get_comment_tree(request):
+    article_id = request.GET.get("article_id")
+    response = list(Comment.objects.filter(article_id=article_id).order_by("pk").values("pk", "content",
+                                                                                               "parent_comment_id"))
+
+    return JsonResponse(response, safe=False)
+
+
+@login_required
+def cn_backend(request):
+    """
+    后台管理的首页
+    :param request:
+    :return:
+    """
+    article_list = Article.objects.filter(user=request.user)
+
+    return render(request, "backend/backend.html", locals())
+
+
+from bs4 import BeautifulSoup
+
+
+@login_required
+def add_article(request):
+    """
+    后台管理的添加书籍视图函数
+    :param request:
+    :return:
+    """
+    if request.method == "POST":
+        title = request.POST.get("title")
+        content = request.POST.get("content")
+
+        # 防止xss攻击,过滤script标签
+        soup=BeautifulSoup(content,"html.parser")
+        for tag in soup.find_all():
+
+            print(tag.name)
+            if tag.name=="script":
+                tag.decompose()
+
+        # 构建摘要数据,获取标签字符串的文本前150个符号
+
+        desc=soup.text[0:150]+"..."
+
+        Article.objects.create(title=title,desc=desc,content=str(soup), user=request.user)
+        return redirect("/cn_backend/")
+
+    return render(request, "backend/add_article.html")
+
+
+def upload(request):
+    """
+    编辑器上传文件接受视图函数
+    :param request:
+    :return:
+    """
+
+    print(request.FILES)
+    img_obj=request.FILES.get("upload_img")
+    print(img_obj.name)
+
+    path=os.path.join(settings.MEDIA_ROOT,"add_article_img",img_obj.name)
+
+    with open(path,"wb") as f:
+
+        for line in img_obj:
+            f.write(line)
+
+
+    return HttpResponse("ok")
