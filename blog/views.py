@@ -356,6 +356,9 @@ def upload(request):
 
         for line in img_obj:
             f.write(line)
-
-
-    return HttpResponse("ok")
+    response={
+        "error":0,
+        "url":"/media/add_article_img/%s"%img_obj.name
+    }
+    import json
+    return HttpResponse(json.dumps(response))
